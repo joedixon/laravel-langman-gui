@@ -96,7 +96,7 @@
             <div class="col">
                 <div v-if="selectedKey">
 
-                    <p class="mb-4">
+                    <p class="mb-4" v-html="highlight(selectedKey)">
                         @{{ selectedKey }}
                         <button class="btn btn-outline-warning btn-sm mr-2"
                             style="float: right; margin-right: 0 !important;"
@@ -104,8 +104,6 @@
                             v-on:click="toggleTextDirection">@{{ textDirection == 'ltr' ? 'RTL' : 'LTR'}}
                         </button>
                     </p>
-
-                    <p class="mb-4" v-html="highlight(selectedKey)"></p>
 
                 <textarea name="" rows="10" class="form-control mb-4"
                           v-if="typeof translations[selectedLanguage][selectedFile][selectedKey] !== 'object'"
