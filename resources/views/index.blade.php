@@ -40,6 +40,17 @@
                            class="dropdown-item" href="#">@{{ lang }}</a>
                     </div>
                 </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        @{{ selectedFile }}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a v-for="file in files"
+                           href="#" role="button"
+                           v-on:click="selectedFile = file"
+                           class="dropdown-item" href="#">@{{ file }}</a>
+                    </div>
+                </li>
             </ul>
         
             <button class="btn btn-outline-info btn-sm mr-2"
@@ -84,7 +95,7 @@
             </div>
             <div class="col">
                 <div v-if="selectedKey">
-<<<<<<< HEAD
+
                     <p class="mb-4">
                         @{{ selectedKey }}
                         <button class="btn btn-outline-warning btn-sm mr-2"
@@ -93,18 +104,27 @@
                             v-on:click="toggleTextDirection">@{{ textDirection == 'ltr' ? 'RTL' : 'LTR'}}
                         </button>
                     </p>
-=======
+
                     <p class="mb-4" v-html="highlight(selectedKey)"></p>
->>>>>>> placeholder-highlighting
 
                 <textarea name="" rows="10" class="form-control mb-4"
                           v-model="translations[selectedLanguage][selectedKey]"
                           v-bind:dir="textDirection"
+
+                    <textarea name="" rows="10" class="form-control mb-4" v-if="typeof translations[selectedLanguage][selectedFile][selectedKey] !== 'object'"
+                          v-model="translations[selectedLanguage][selectedFile][selectedKey]"
+
                           placeholder="Translate..."></textarea>
+
+                    <textarea name="" rows="10" class="form-control mb-4" v-if="typeof translations[selectedLanguage][selectedFile][selectedKey] === 'object'"
+                          v-for="(line, index) in translations[selectedLanguage][selectedFile][selectedKey]"
+                          v-model="translations[selectedLanguage][selectedFile][selectedKey][index]"
+                          placeholder="Translate...">@{{ line }}</textarea>
 
                     <div class="d-flex justify-content-center">
                         <button class="btn btn-outline-danger btn-sm" v-on:click="removeKey(selectedKey)">Delete this key</button>
                     </div>
+
                 </div>
 
                 <h5 class="text-muted text-center" v-else>

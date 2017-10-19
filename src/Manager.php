@@ -2,11 +2,11 @@
 
 namespace Themsaid\LangmanGUI;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class Manager
 {
@@ -64,14 +64,10 @@ class Manager
             return $this->translations;
         }
 
-        collect($this->disk->allFiles($this->languageFilesPath))
-            ->filter(function ($file) {
-                return $this->disk->extension($file) == 'json';
-            })
-            ->each(function ($file) {
-                $this->translations[str_replace('.json', '', $file->getFilename())]
-                    = json_decode($file->getContents());
-            });
+        if(!$this->translations) $this->addLanguage(config('langmanGUI.base_language'));
+
+        $this->getJsonTranslations();
+        $this->getArrayTranslations();
 
         return $this->translations;
     }
@@ -84,22 +80,48 @@ class Manager
     public function sync()
     {
         $this->backup();
+        $this->getTranslations();
+        $keysFromFiles = $this->getTranslationsFromFiles();
 
-        $output = [];
+        if(isset($keysFromFiles['strings'])) $this->syncStringKeys($keysFromFiles['strings']);
+        if(isset($keysFromFiles['groups'])) $this->syncGroupKeys($keysFromFiles['groups']);
 
-        $translations = $this->getTranslations();
+        return $this->translations;
+    }
 
-        $keysFromFiles = array_collapse($this->getTranslationsFromFiles());
-
-        foreach (array_unique($keysFromFiles) as $fileName => $key) {
-            foreach ($translations as $lang => $keys) {
-                if (! array_key_exists($key, $keys)) {
-                    $output[] = $key;
+    private function syncStringKeys($stringKeys)
+    {
+        foreach($stringKeys as $key)
+        {
+            foreach($this->translations as $language => $files) {
+                if(!$this->keyExistsInTranslations($language, "{$language}.json", $key)) {
+                    $this->translations[$language]["{$language}.json"][$key] = '';
                 }
             }
         }
+    }
 
-        return array_values(array_unique($output));
+    private function syncGroupKeys($groupKeys)
+    {
+        foreach($groupKeys as $group => $keys) {
+            foreach($this->translations as $language => $files) {
+                foreach($keys as $key) {
+                    if(!$this->keyExistsInTranslations($language, "{$group}.php", $key)) {           
+                        $this->translations[$language]["{$group}.php"][$key] = '';
+                    }
+                }
+            }
+        }
+    }
+
+    private function filenameExistsInTranslations($language, $filename)
+    {
+        return isset($this->translations[$language][$filename]);
+    }
+
+    private function keyExistsInTranslations($language, $filename, $key)
+    {
+        return $this->filenameExistsInTranslations($language, $filename) && array_key_exists($key, $this->translations[$language][$filename]);
     }
 
     /**
@@ -111,12 +133,24 @@ class Manager
     {
         $this->backup();
 
-        foreach ($translations as $lang => $lines) {
-            $filename = $this->languageFilesPath.DIRECTORY_SEPARATOR."$lang.json";
+        foreach ($translations as $lang => $file) {
 
-            ksort($lines);
+            foreach($file as $name => $lines) {
 
-            file_put_contents($filename, json_encode($lines, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                $lines = $this->convertNullToEmptyString($lines);
+
+                if(is_array($lines)) ksort($lines);
+
+                if(strpos($name, '.json') !== false) {
+                    file_put_contents($this->languageFilesPath . DIRECTORY_SEPARATOR . "$name", json_encode($lines, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+                }
+
+                if(strpos($name, '.php') !== false) {
+                    file_put_contents($this->languageFilesPath . DIRECTORY_SEPARATOR . "$lang" . DIRECTORY_SEPARATOR . "$name", "<?php\n\nreturn " . var_export($lines, true) . ";".\PHP_EOL);
+                }
+
+            }
+            
         }
     }
 
@@ -129,9 +163,15 @@ class Manager
     {
         $this->backup();
 
-        file_put_contents($this->languageFilesPath.DIRECTORY_SEPARATOR."$language.json",
-            json_encode((object) [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
-        );
+        if(!file_exists($this->languageFilesPath . DIRECTORY_SEPARATOR . "$language.json")) {
+            file_put_contents($this->languageFilesPath . DIRECTORY_SEPARATOR . "$language.json",
+                json_encode((object)['Hello World' => 'Hello World'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+            );
+        }
+
+        if(!file_exists($this->languageFilesPath . DIRECTORY_SEPARATOR . "$language")) {
+            $this->disk->makeDirectory($this->languageFilesPath . DIRECTORY_SEPARATOR . "$language");
+        }   
     }
 
     /**
@@ -166,7 +206,20 @@ class Manager
 
         foreach ($this->disk->allFiles($this->lookupPaths) as $file) {
             if (preg_match_all("/$pattern/siU", $file->getContents(), $matches)) {
-                $allMatches[$file->getRelativePathname()] = $matches[2];
+
+                foreach ($matches[2] as $key) {
+                    if (preg_match("/(^[a-zA-Z0-9_-]+([.][^\1)\ ]+)+$)/siU", $key, $groupMatches)) {
+                        
+                        list($group, $item) = explode('.', $groupMatches[0], 2);
+                        $allMatches['groups'][$group][] = $item;
+                        continue;
+
+                    } else {
+
+                        $allMatches['strings'][] = $key;
+
+                    }
+                }
             }
         }
 
@@ -185,5 +238,49 @@ class Manager
         }
 
         $this->disk->copyDirectory(resource_path('lang'), storage_path('langmanGUI/'.time()));
+    }
+
+    public function getJsonTranslations()
+    {
+        collect($this->disk->allFiles($this->languageFilesPath))
+            ->filter(function ($file) {
+                return $this->disk->extension($file) == 'json';
+            })
+            ->each(function ($file) {
+                $translations = json_decode($file->getContents(), true);
+                $this->addTranslations(str_replace('.json', '', $file->getFilename()), $file->getFilename(), $translations ?: []);
+            });
+    }
+
+    public function getArrayTranslations()
+    {
+        collect($this->disk->allFiles($this->languageFilesPath))
+            ->filter(function ($file) {
+                return $this->disk->extension($file) == 'php';
+            })
+            ->each(function ($file) {
+                $translations = $this->disk->getRequire($file->getPathname());
+                $this->addTranslations($file->getRelativePath(), $file->getFilename(), $translations ?: []);
+            });
+    }
+
+    /**
+     * @param $language
+     * @param $filename
+     * @param array $translations
+     */
+    private function addTranslations($language, $filename, array $translations)
+    {
+        isset($this->translations[$language][$filename]) ? $this->translations[$language][$filename] += $translations : $this->translations[$language][$filename] = $translations;
+    }
+
+    private function convertNullToEmptyString(array $lines)
+    {
+        foreach($lines as $key => $value)
+        {
+            $lines[$key] = is_null($value) ? '' : $value;
+        }
+
+        return $lines;
     }
 }
