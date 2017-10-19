@@ -43432,6 +43432,29 @@ new Vue({
         }
     },
 
+    /**
+     * Add values to the base language used.
+     */
+    addValuesToBaseLanguage() {
+        _.forEach(this.translations[this.baseLanguage], (value, key) => {
+            if (!value) {
+                this.translations[this.baseLanguage][key] = key;
+            }
+        });
+    },
+
+    /**
+     * Toggle direction of text between LTR and RTL
+     */
+    toggleTextDirection() {
+        this.textDirection = this.textDirection === 'ltr' ? 'rtl' : 'ltr';
+
+    },
+
+    highlight(value) {
+        return value.replace(/:{1}[\w-]+/gi, function (match){return '<mark>' + match +'</mark>';});
+    },
+
     watch: {
         translations:  {
             handler: function(translations) {
@@ -43450,29 +43473,6 @@ new Vue({
             else {
                 window.onbeforeunload = null;
             }
-        },
-
-        /**
-         * Add values to the base language used.
-         */
-        addValuesToBaseLanguage() {
-            _.forEach(this.translations[this.baseLanguage], (value, key) => {
-                if (!value) {
-                    this.translations[this.baseLanguage][key] = key;
-                }
-            });
-        },
-
-        /**
-         * Toggle direction of text between LTR and RTL
-         */
-        toggleTextDirection() {
-            this.textDirection = this.textDirection === 'ltr' ? 'rtl' : 'ltr';
-
-        },
-
-        highlight(value) {
-            return value.replace(/:{1}[\w-]+/gi, function (match){return '<mark>' + match +'</mark>';});
         },
 
         selectedLanguage: function(language) {
