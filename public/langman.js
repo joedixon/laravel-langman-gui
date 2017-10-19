@@ -43451,6 +43451,8 @@ new Vue({
         },
 
         highlight(value) {
+            if(typeof value !== 'string') return;
+            
             return value.replace(/:{1}[\w-]+/gi, function (match){return '<mark>' + match +'</mark>';});
         },
     },
