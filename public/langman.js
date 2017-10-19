@@ -43452,7 +43452,6 @@ new Vue({
             }
         },
 
-<<<<<<< HEAD
         /**
          * Add values to the base language used.
          */
@@ -43464,21 +43463,21 @@ new Vue({
             });
         },
 
-<<<<<<< HEAD
         /**
          * Toggle direction of text between LTR and RTL
          */
         toggleTextDirection() {
             this.textDirection = this.textDirection === 'ltr' ? 'rtl' : 'ltr';
-=======
+
+        },
+
         highlight(value) {
             return value.replace(/:{1}[\w-]+/gi, function (match){return '<mark>' + match +'</mark>';});
->>>>>>> placeholder-highlighting
-=======
+        },
+
         selectedLanguage: function(language) {
             this.files = Object.keys(this.translations[language]);
             this.selectedFile = this.files[0];
->>>>>>> array-translations
         }
     }
 });
