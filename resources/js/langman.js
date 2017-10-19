@@ -198,6 +198,11 @@ new Vue({
          */
         toggleTextDirection() {
             this.textDirection = this.textDirection === 'ltr' ? 'rtl' : 'ltr';
+
+        },
+
+        highlight(value) {
+            return value.replace(/:{1}[\w-]+/gi, function (match){return '<mark>' + match +'</mark>';});
         }
     }
 });

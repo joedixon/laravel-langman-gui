@@ -74,9 +74,9 @@
                            v-on:click="selectedKey = line.key"
                            :class="['list-group-item', 'list-group-item-action', {'list-group-item-danger': !line.value}]">
                             <div class="d-flex w-100 justify-content-between">
-                                <strong class="mb-1">@{{ line.key }}</strong>
+                                <strong class="mb-1" v-html="highlight(line.key)"></strong>
                             </div>
-                            <small class="text-muted">@{{ line.value }}</small>
+                            <small class="text-muted" v-html="highlight(line.value)"></small>
                         </a>
 
                     </div>
@@ -84,6 +84,7 @@
             </div>
             <div class="col">
                 <div v-if="selectedKey">
+<<<<<<< HEAD
                     <p class="mb-4">
                         @{{ selectedKey }}
                         <button class="btn btn-outline-warning btn-sm mr-2"
@@ -92,6 +93,9 @@
                             v-on:click="toggleTextDirection">@{{ textDirection == 'ltr' ? 'RTL' : 'LTR'}}
                         </button>
                     </p>
+=======
+                    <p class="mb-4" v-html="highlight(selectedKey)"></p>
+>>>>>>> placeholder-highlighting
 
                 <textarea name="" rows="10" class="form-control mb-4"
                           v-model="translations[selectedLanguage][selectedKey]"
