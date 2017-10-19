@@ -108,17 +108,16 @@
                     <p class="mb-4" v-html="highlight(selectedKey)"></p>
 
                 <textarea name="" rows="10" class="form-control mb-4"
-                          v-model="translations[selectedLanguage][selectedKey]"
-                          v-bind:dir="textDirection"
-
-                    <textarea name="" rows="10" class="form-control mb-4" v-if="typeof translations[selectedLanguage][selectedFile][selectedKey] !== 'object'"
+                          v-if="typeof translations[selectedLanguage][selectedFile][selectedKey] !== 'object'"
                           v-model="translations[selectedLanguage][selectedFile][selectedKey]"
-
+                          v-bind:dir="textDirection"
                           placeholder="Translate..."></textarea>
 
-                    <textarea name="" rows="10" class="form-control mb-4" v-if="typeof translations[selectedLanguage][selectedFile][selectedKey] === 'object'"
+                    <textarea name="" rows="10" class="form-control mb-4" 
+                          v-if="typeof translations[selectedLanguage][selectedFile][selectedKey] === 'object'"
                           v-for="(line, index) in translations[selectedLanguage][selectedFile][selectedKey]"
                           v-model="translations[selectedLanguage][selectedFile][selectedKey][index]"
+                          v-bind:dir="textDirection"
                           placeholder="Translate...">@{{ line }}</textarea>
 
                     <div class="d-flex justify-content-center">
