@@ -154,7 +154,6 @@ class Manager
             
         }
 
-        \Log::info('Yo');
         event(new TranslationsWereSaved);
     }
 
