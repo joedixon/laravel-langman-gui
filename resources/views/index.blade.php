@@ -106,8 +106,8 @@
                     </p>
 
                 <textarea name="" rows="10" class="form-control mb-4"
-                          v-if="typeof selected !== 'object'"
-                          v-model="selected"
+                          v-if="typeof translations[selectedLanguage][selectedFile][selectedKey] !== 'object'"
+                          v-model="translations[selectedLanguage][selectedFile][selectedKey]"
                           v-bind:dir="textDirection"
                           placeholder="Translate..."></textarea>
 
