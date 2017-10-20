@@ -43313,6 +43313,10 @@ new Vue({
             return _.filter(this.translations[this.selectedLanguage][this.selectedFile], value => {
                 return !value;
             });
+        },
+
+        selected() {
+            return this.translations[this.selectedLanguage][this.selectedFile][this.selectedKey];
         }
     },
 
@@ -43451,8 +43455,8 @@ new Vue({
         },
 
         highlight(value) {
-            if(typeof value !== 'string') return;
-            
+            if(typeof value !== 'string') return String(value);
+
             return value.replace(/:{1}[\w-]+/gi, function (match){return '<mark>' + match +'</mark>';});
         },
     },
@@ -43480,6 +43484,11 @@ new Vue({
         selectedLanguage: function(language) {
             this.files = Object.keys(this.translations[language]);
             this.selectedFile = this.files[0];
+        },
+
+        selectedKey: function(key)
+        {
+            this.selectedKey = String(key);
         }
     }
 });

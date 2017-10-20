@@ -97,7 +97,7 @@
                 <div v-if="selectedKey">
 
                     <p class="mb-4">
-                        @{{ highlight(selectedKey) }}
+                        @{{ selectedKey }}
                         <button class="btn btn-outline-warning btn-sm mr-2"
                             style="float: right; margin-right: 0 !important;"
                             type="button"
@@ -106,15 +106,14 @@
                     </p>
 
                 <textarea name="" rows="10" class="form-control mb-4"
-                          v-if="typeof translations[selectedLanguage][selectedFile][selectedKey] !== 'object'"
-                          v-model="translations[selectedLanguage][selectedFile][selectedKey]"
+                          v-model="selected"
                           v-bind:dir="textDirection"
                           placeholder="Translate..."></textarea>
 
                     <textarea name="" rows="10" class="form-control mb-4" 
-                          v-if="typeof translations[selectedLanguage][selectedFile][selectedKey] === 'object'"
-                          v-for="(line, index) in translations[selectedLanguage][selectedFile][selectedKey]"
-                          v-model="translations[selectedLanguage][selectedFile][selectedKey][index]"
+                          v-if="typeof selected === 'object'"
+                          v-for="(line, index) in selected"
+                          v-model="selected[index]"
                           v-bind:dir="textDirection"
                           placeholder="Translate...">@{{ line }}</textarea>
 
