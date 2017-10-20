@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Filesystem\Filesystem;
+use Themsaid\LangmanGUI\Events\TranslationsWereSaved;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class Manager
@@ -152,6 +153,9 @@ class Manager
             }
             
         }
+
+        \Log::info('Yo');
+        event(new TranslationsWereSaved);
     }
 
     /**
