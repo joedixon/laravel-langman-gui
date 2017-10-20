@@ -96,7 +96,8 @@
             <div class="col">
                 <div v-if="selectedKey">
 
-                    <p class="mb-4" v-html="highlight(selectedKey)">
+                    <p class="mb-4">
+                        @{{ selectedKey | highlight }}
                         <button class="btn btn-outline-warning btn-sm mr-2"
                             style="float: right; margin-right: 0 !important;"
                             type="button"
