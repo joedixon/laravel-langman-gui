@@ -106,14 +106,14 @@
                     </p>
 
                 <textarea name="" rows="10" class="form-control mb-4"
-                          v-model="selected"
+                          v-model="translations[selectedLanguage][selectedFile][selectedKey]"
                           v-bind:dir="textDirection"
                           placeholder="Translate..."></textarea>
 
                     <textarea name="" rows="10" class="form-control mb-4" 
                           v-if="typeof selected === 'object'"
                           v-for="(line, index) in selected"
-                          v-model="selected[index]"
+                          v-model="translations[selectedLanguage][selectedFile][selectedKey][index]"
                           v-bind:dir="textDirection"
                           placeholder="Translate...">@{{ line }}</textarea>
 
