@@ -50,7 +50,7 @@
                             v-for="file in filteredFiles"
                             v-on:click="selectFile(file)"
                             :class="['list-group-item', 'list-group-item-action']">
-                            <div class="d-flex w-100 justify-content-between">
+                            <div class="d-flex w-100 justify-content-between" style="overflow: hidden;">
                                 <strong v-html="stripExtension(file)"></strong>
                             </div>
                         </a>
