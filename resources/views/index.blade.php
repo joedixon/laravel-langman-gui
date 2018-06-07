@@ -40,15 +40,20 @@
                            class="dropdown-item" href="#">@{{ lang }}</a>
                     </div>
                 </li>
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        @{{ selectedFile }}
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <a v-for="file in files"
-                           href="#" role="button"
-                           v-on:click="selectedFile = file"
-                           class="dropdown-item" href="#">@{{ file }}</a>
+                <li class="nav-item" style="position:relative;">
+                    <div class="input-group categorySearch">
+                        <div class="input-group-addon"><i class="fa fa-search"></i></div>
+                        <input type="text" class="form-control" v-model="searchCategory" placeholder="Search category">
+                    </div>
+                    <div class="list-group" v-if="this.searchCategory" style="position: absolute; width: 100%; z-index:2;">
+                        <a href="#" role="button"
+                            v-for="file in filteredFiles"
+                            v-on:click="selectFile(file)"
+                            :class="['list-group-item', 'list-group-item-action']">
+                            <div class="d-flex w-100 justify-content-between">
+                                <strong v-html="stripExtension(file)"></strong>
+                            </div>
+                        </a>
                     </div>
                 </li>
             </ul>
@@ -67,6 +72,7 @@
                 <small v-if="this.hasChanges" class="text-danger">&#9679;</small>
             </button>
         </div>
+
     </nav>
 
     <div class="container">

@@ -6,6 +6,7 @@ new Vue({
     data() {
         return {
             searchPhrase: '',
+            searchCategory: '',
             baseLanguage: langman.baseLanguage,
             selectedLanguage: langman.baseLanguage,
             selectedFile: Object.keys(langman.translations[langman.baseLanguage])[0],
@@ -40,6 +41,20 @@ new Vue({
             }
 
             return _.sortBy(this.currentLanguageTranslations, 'value');
+        },
+
+        /**
+         * List of filtered file names.
+         */
+        filteredFiles() {
+            if (this.searchCategory) {
+                return this.files.filter(file => {
+                    file = this.stripExtension(file);
+                    return file.toLowerCase().indexOf(this.searchCategory.toLowerCase()) > -1;
+                });
+            }
+
+            return this.files;
         },
 
 
@@ -206,6 +221,15 @@ new Vue({
 
             return value.replace(/:{1}[\w-]+/gi, function (match){return '<mark>' + match +'</mark>';});
         },
+
+        stripExtension(value) {
+            return value.substr(0, value.indexOf('.'));
+        },
+
+        selectFile(file) {
+            this.selectedFile = file;
+            this.searchCategory = '';
+        }
     },
 
     watch: {
