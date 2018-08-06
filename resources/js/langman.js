@@ -9,7 +9,7 @@ new Vue({
             searchCategory: '',
             baseLanguage: langman.baseLanguage,
             selectedLanguage: langman.baseLanguage,
-            selectedFile: Object.keys(langman.translations[langman.baseLanguage])[0],
+            selectedFile: false,
             languages: langman.languages,
             files: Object.keys(langman.translations[langman.baseLanguage]),
             translations: langman.translations,
@@ -27,6 +27,7 @@ new Vue({
     },
 
     computed: {
+
         /**
          * List of filtered translation keys.
          */
@@ -34,7 +35,7 @@ new Vue({
             if (this.searchPhrase) {
                 return _.chain(this.currentLanguageTranslations)
                     .pickBy(line => {
-                        return line.key.toLowerCase().indexOf(this.searchPhrase.toLowerCase()) > -1 || line.value.toLowerCase().indexOf(this.searchPhrase.toLowerCase()) > -1;
+                        return String(line.key).toLowerCase().indexOf(this.searchPhrase.toLowerCase()) > -1 || String(line.value).toLowerCase().indexOf(this.searchPhrase.toLowerCase()) > -1;
                     })
                     .sortBy('value')
                     .value();
@@ -62,9 +63,21 @@ new Vue({
          * List of translation lines from the current language.
          */
         currentLanguageTranslations() {
-            return _.map(this.translations[this.selectedLanguage][this.selectedFile], (value, key) => {
-                return {key: key, value: value ? value : ''};
-            });
+            let translations = [];
+
+            if(!this.selectedFile) {
+                _.forEach(this.translations[this.selectedLanguage], (values, file) => {
+                    _.forEach(values, (value, key) => {
+                        translations.push({ key: key, value: value ? value : '', language: this.selectedLanguage, file: file });
+                    })
+                });
+            } else {
+                _.forEach(this.translations[this.selectedLanguage][this.selectedFile], (value, key) => {
+                    translations.push({key: key, value: value ? value : '', language: this.selectedLanguage, file: this.selectedFile});
+                });
+            }
+
+            return translations;
         },
 
 
@@ -72,13 +85,18 @@ new Vue({
          * List of untranslated keys from the current language.
          */
         currentLanguageUntranslatedKeys() {
+            if(!this.selectedFile) {
+                return;
+            }
             return _.filter(this.translations[this.selectedLanguage][this.selectedFile], value => {
                 return !value;
             });
         },
 
         selected() {
-            return this.translations[this.selectedLanguage][this.selectedFile][this.selectedKey];
+            if(this.selectedFile) {
+                return this.translations[this.selectedLanguage][this.selectedFile][this.selectedKey];
+            }
         }
     },
 
@@ -260,6 +278,13 @@ new Vue({
         selectedKey: function(key)
         {
             this.selectedKey = String(key);
+        },
+
+        searchPhrase: function(phrase)
+        {
+            if(phrase) {
+                this.selectedFile = false;
+            }
         }
     }
 });

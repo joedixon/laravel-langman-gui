@@ -80,7 +80,12 @@
             <div class="col">
                 <div class="input-group mainSearch">
                     <div class="input-group-addon"><i class="fa fa-search"></i></div>
-                    <input type="text" class="form-control" v-model="searchPhrase" placeholder="Search">
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        v-model="searchPhrase" 
+                        placeholder="Search"
+                    >
                 </div>
 
                 <div class="mt-4" style="overflow: scroll; height: 500px">
@@ -88,7 +93,7 @@
 
                         <a href="#" role="button"
                            v-for="line in filteredTranslations"
-                           v-on:click="selectedKey = line.key"
+                           v-on:click="selectedKey = line.key; selectedFile = line.file"
                            :class="['list-group-item', 'list-group-item-action', {'list-group-item-danger': !line.value}]">
                             <div class="d-flex w-100 justify-content-between">
                                 <strong class="mb-1" v-html="highlight(line.key)"></strong>
@@ -100,7 +105,7 @@
                 </div>
             </div>
             <div class="col">
-                <div v-if="selectedKey">
+                <div v-if="selectedFile && selectedKey">
 
                     <p class="mb-4">
                         @{{ selectedKey }}
